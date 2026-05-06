@@ -37,7 +37,12 @@ export const getProductById = async(req:Request, res:Response) => {
 export const destroy = async(req:Request, res:Response) => {
     try {
         
-        const id = req.params
+        const id = req.params.id
+        if (!id) {
+            return res.status(400).json({
+                message: "ID wajib diisi",
+            });
+        }
         const result = await pool.execute(
             "DELETE FROM products WHERE id = (?)", [id]
         )
@@ -51,9 +56,13 @@ export const destroy = async(req:Request, res:Response) => {
 
 export const create =  async(req:Request, res:Response) => {
     try {
-
+        
         const {name, price, description, stock, category_id} = req.body
-        const imagePath = req.file?.filename;
+        let imagePath = null
+        if (req.file?.filename){
+            imagePath = req.file?.filename;
+        }
+
         const [result] = await pool.execute<ResultSetHeader>(
             "INSERT INTO products (name, price,image,deskripsi, stock, category_id) VALUE (?,?,?,?,?,?)", [name, price, imagePath, description, stock, category_id]
         )
