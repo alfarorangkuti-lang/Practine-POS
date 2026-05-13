@@ -64,7 +64,7 @@ export const create =  async(req:Request, res:Response) => {
         }
 
         const [result] = await pool.execute<ResultSetHeader>(
-            "INSERT INTO products (name, price,image,deskripsi, stock, category_id) VALUE (?,?,?,?,?,?)", [name, price, imagePath, description, stock, category_id]
+            "INSERT INTO products (name, price,image,description, stock, category_id) VALUE (?,?,?,?,?,?)", [name, price, imagePath, description, stock, category_id]
         )
         res.status(200).json({message: "berhasil!", insertId: result.insertId})
 

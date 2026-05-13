@@ -4,6 +4,7 @@ import pool from "./config/db";
 
 import categoriesRoutes from "./routes/categoriesRoutes";
 import productsRoutes from "./routes/productsRoutes";
+import transactionRoutes from "./routes/transactionRoute"
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 
 app.use('/products', productsRoutes)
 app.use("/categories", categoriesRoutes);
+app.use("/transactions", transactionRoutes)
 
 
 app.get("/", (_, res) => {
