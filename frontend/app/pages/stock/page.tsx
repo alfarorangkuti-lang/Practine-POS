@@ -105,7 +105,7 @@ export default function Stock() {
                 </thead>
                 <tbody className="divide-y divide-slate-200 bg-white dark:divide-zinc-800 dark:bg-zinc-950">
                   {pagedProducts.map((item, index) => (
-                    <tr key={item.stock}>
+                    <tr key={item.id}>
                       <td className="px-4 py-4 font-medium text-zinc-950 dark:text-zinc-50">{(page - 1) * PAGE_SIZE + index + 1}</td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
