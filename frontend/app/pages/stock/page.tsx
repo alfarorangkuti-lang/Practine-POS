@@ -14,15 +14,18 @@ export default function Stock() {
   const [products, setProducts] = useState<Products[]>([])
   const [refresh, setRefresh] = useState(false)
   const [loading, setLoading] = useState(true);
-
-  const totalPages = Math.ceil(products.length / PAGE_SIZE);
+  let totalPages = 0
+  if (products) {
+    totalPages = Math.ceil(products.length / PAGE_SIZE);  
+  }
+  
   const handleDelete = async(id:string) => {
     const res = await destroyProduct(id)
     setRefresh((prev) => !prev)
   }
 
   const pagedProducts = useMemo(
-    () => products.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    () => products?.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
     [products,page]
   );
   
@@ -43,13 +46,13 @@ export default function Stock() {
 
   return (
     <DashboardShell
-      title="Manajemen Stok"
+      title="Manajemen Produk"
     >
       <div className="space-y-6">
         <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
           <div className="rounded-md border border-slate-300 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
             <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Total Item</p>
-            <p className="mt-3 text-3xl font-semibold text-zinc-950 dark:text-zinc-50">{products.length}</p>
+            <p className="mt-3 text-3xl font-semibold text-zinc-950 dark:text-zinc-50">{products?.length}</p>
             <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">Jumlah produk aktif dalam stok.</p>
           </div>
           <div className="rounded-md border border-slate-300 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
@@ -104,7 +107,7 @@ export default function Stock() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 bg-white dark:divide-zinc-800 dark:bg-zinc-950">
-                  {pagedProducts.map((item, index) => (
+                  {pagedProducts?.map((item, index) => (
                     <tr key={item.id}>
                       <td className="px-4 py-4 font-medium text-zinc-950 dark:text-zinc-50">{(page - 1) * PAGE_SIZE + index + 1}</td>
                       <td className="px-4 py-4">
@@ -146,7 +149,7 @@ export default function Stock() {
 
             <div className="mt-4 flex flex-col gap-3 border-t border-slate-300 bg-slate-50 p-4 dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Menampilkan {pagedProducts.length} dari {products.length} produk
+                Menampilkan {pagedProducts?.length} dari {products?.length} produk
               </p>
               <div className="flex items-center gap-2">
                 <button

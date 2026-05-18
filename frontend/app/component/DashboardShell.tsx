@@ -5,14 +5,14 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { PanelLeftOpen ,LogOut, Box, ChartArea,FilePlusCorner , Clock3, Menu, Wallet, Bolt, PanelRightOpen } from "lucide-react";
+import { PanelLeftOpen ,LogOut, Box, ChartArea,FilePlusCorner , Clock3, Menu, Wallet, Flame, PanelRightOpen } from "lucide-react";
 
 const navItems = [
-  { id: "add", label: "Tambah Transaksi", icon: FilePlusCorner, href: "/pages/tambahTransaksi" },
   { id: "stock", label: "Stock", icon: Box, href: "/pages/stock" },
   { id: "analytics", label: "Analytics", icon: ChartArea, href: "/pages/home" },
   { id: "history", label: "Riwayat Transaksi", icon: Clock3, href: "#" },
   { id: "financial", label: "Finansial", icon: Wallet, href: "#" },
+  { id: "add", label: "Tambah Transaksi", icon: FilePlusCorner, href: "/pages/tambahTransaksi" },
 ];
 
 type DashboardShellProps = {
@@ -65,7 +65,7 @@ export default function DashboardShell({ children, title, subtitle, badges = [] 
           <div className="flex items-center gap-3 border-b border-dashed border-slate-300 px-3 py-3 dark:border-zinc-800">
             <div className={`flex items-center gap-3 ${expanded ? "" : "md:mx-auto"}`}>
               <div className="flex h-11 w-11 items-center justify-center rounded-md bg-sky-600 text-base font-semibold text-white">
-                <Bolt className="h-5 w-5" />
+                <Flame className="h-5 w-5" />
               </div>
               <div className={`${showSidebarLabels ? "block" : "hidden"}`}>
                 <p className="text-sm font-semibold text-zinc-950 dark:text-zinc-50">Practine POS</p>
@@ -81,7 +81,7 @@ export default function DashboardShell({ children, title, subtitle, badges = [] 
               <Link
                 key={item.id}
                 href={item.href}
-                className={`group flex items-center gap-3 rounded-md text-sm font-medium transition ${
+                className={`${item.id === "add" ? "bg-blue-600" : ""} group rounded-md flex items-center gap-3 text-sm font-medium transition ${
                   isActive
                     ? "bg-sky-100 dark:bg-sky-500/10"
                     : "text-zinc-700 hover:bg-sky-50 hover:text-sky-600 dark:text-zinc-300 dark:hover:bg-sky-500/10 dark:hover:text-sky-300"

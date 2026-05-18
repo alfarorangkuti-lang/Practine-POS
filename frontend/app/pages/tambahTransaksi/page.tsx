@@ -4,22 +4,17 @@ import { Search } from "lucide-react";
 import { getAllProducts, Products } from "@/app/services/products";
 import { useEffect, useState } from "react";
 
-
-const cartItems = [
-  {
-    name: "Samsung A15",
-    qty: 1,
-    price: "Rp2.500.000",
-  },
-  {
-    name: "Redmi Note 13",
-    qty: 2,
-    price: "Rp4.200.000",
-  },
-];
+type Cart = {
+  id: number
+  qty: number
+  subtotal: number
+  name: string
+}
 
 export default function DashboardPage() {
+  const [cart, setCart] = useState<Cart[]>([])
   const [menuItems, setMenuItems] = useState<Products[]>([])
+  const [total, setTotal] = useState(0)
 
   useEffect(() => {
     const fetchProducts = async() => {  
@@ -29,6 +24,28 @@ export default function DashboardPage() {
     fetchProducts()
   }, [])
 
+  const addItem = (id: number, price: number, qty: number, name: string) => {
+    const subtotal = price * qty
+    const newItem = {name: name, id: id, qty: qty, subtotal: subtotal}
+    const exist = cart.find((item) => item.name === newItem.name)
+    if (exist) {
+      const updatedCart = cart.map((item) =>
+        item.name === newItem.name
+          ? {
+              ...item,
+              qty: item.qty + newItem.qty,
+              subtotal: item.subtotal + newItem.subtotal,
+            }
+          : item
+      );
+      setTotal(total+newItem.subtotal)
+      setCart(updatedCart);
+    } else {
+      setCart([...cart, newItem]);
+      setTotal(total+newItem.subtotal)
+    }
+    
+  }
   return (
     <DashboardShell title="Buat Transaksi">
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] p-4">
@@ -63,6 +80,7 @@ export default function DashboardPage() {
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {menuItems.map((item, index) => (
               <button
+                onClick={() => addItem(item.id, item.price, 1, item.name)}
                 key={index}
                 className="group overflow-hidden rounded-md border border-zinc-200 bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-md hover:shadow-sky-200/40 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-sky-500 dark:hover:shadow-sky-500/20"
               >
@@ -125,26 +143,14 @@ export default function DashboardPage() {
 
           <div className="mt-6 space-y-4">
             
-            {/* SEARCH */}
-            <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Cari Barang
-              </label>
-
-              <input
-                type="text"
-                placeholder="Masukkan nama atau barcode..."
-                className="w-full rounded-md border border-zinc-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-700"
-              />
-            </div>
 
             {/* CART */}
             <div className="rounded-md border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
-              {cartItems.map((item, index) => (
+              {cart.map((item, index) => (
                 <div
                   key={index}
                   className={`flex items-center justify-between px-4 py-3 ${
-                    index !== cartItems.length - 1
+                    index !== cart.length - 1
                       ? "border-b border-zinc-200 dark:border-zinc-800"
                       : ""
                   }`}
@@ -160,7 +166,7 @@ export default function DashboardPage() {
                   </div>
 
                   <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                    {item.price}
+                    Rp. {item.subtotal.toLocaleString("id-ID")}
                   </p>
                 </div>
               ))}
@@ -190,7 +196,7 @@ export default function DashboardPage() {
                 </p>
 
                 <p className="text-xl font-bold text-zinc-950 dark:text-zinc-50">
-                  Rp6.700.000
+                  Rp. {total.toLocaleString("id-ID")}
                 </p>
               </div>
             </div>
