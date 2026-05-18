@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -25,12 +25,33 @@ type DashboardShellProps = {
 export default function DashboardShell({ children, title, subtitle, badges = [] }: DashboardShellProps) {
   const [expanded, setExpanded] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [authorized, setAuthorized] = useState(false)
+  const [loading, setLoading] = useState(true)
   const showSidebarLabels = expanded || mobileOpen;
   const pathname = usePathname();
   const router = useRouter()
   const logout = () => {
     localStorage.removeItem("token")
     router.push('/')
+  }
+
+
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+    if (!token) {
+      router.push('/')
+      return
+    }
+    setAuthorized(true)
+    setLoading(false)
+  }, [router])
+
+  if (loading) {
+    return <div className="w-sceen h-screen flex items-center justify-center">Loading...</div>
+  }
+
+  if (!authorized) {
+    return null
   }
 
   return (

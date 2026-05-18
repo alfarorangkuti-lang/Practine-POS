@@ -1,13 +1,17 @@
 'use client'
 import { login } from '@/app/services/auth'
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
 export default function LoginPage() {
+  const router = useRouter()
   const[message, setMessage] = useState("")
   const[passwordInput, setPasswordInput] = useState("")
   const[usernameInput, setUsernameInput] = useState("")
   const handleLogin = async() => {
     try {
       await login(usernameInput, passwordInput)
+      router.push('/pages/home')
     } catch (error: any) {
       setMessage(error.message)
     }
@@ -16,14 +20,11 @@ export default function LoginPage() {
     <div className="min-h-screen bg-zinc-50 px-6 py-12 dark:bg-zinc-950 flex items-center justify-center">
       <div className="mx-auto flex w-full max-w-md flex-col rounded-md border border-zinc-200 bg-white p-10 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mb-8 text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-400">
-            Selamat datang di Practine POS
-          </p>
           <h1 className="mt-4 text-3xl font-semibold text-zinc-950 dark:text-zinc-50">
-            Masuk ke akun Anda
+            Login
           </h1>
           <p className="mt-3 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-            Masukkan email dan kata sandi untuk mengakses dashboard dan mulai berjualan.
+            Masukkan username dan kata sandi untuk mengakses dashboard dan mulai berjualan.
           </p>
         </div>
 
