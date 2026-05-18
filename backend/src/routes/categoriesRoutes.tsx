@@ -1,7 +1,9 @@
 import express from "express";
 import { getCategories, createCategory, updateCategory, deleteCategory } from "../controllers/categoriesController";
-
+import { authMiddleware } from "../middleware/auth"
 const router = express.Router();
+
+router.use(authMiddleware)
 
 router.get("/", getCategories)
 router.post("/", createCategory)

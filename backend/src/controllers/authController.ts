@@ -29,8 +29,9 @@ export const login = async(req: Request, res: Response) => {
     const token = jwt.sign({id: user.id, user: user.username}, process.env.JWT_SECRET as string, {expiresIn: "1d"})
     res.json({token})
     } catch (error) {
+        console.log(error, "a")
         res.status(500).json(
-            {message: `terjadi error : ${error}`}
+            {error}
         )
     }
 }

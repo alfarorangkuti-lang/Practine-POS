@@ -4,7 +4,8 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PanelLeftOpen ,Box, ChartArea,FilePlusCorner , Clock3, Menu, Wallet, Bolt, PanelRightOpen } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { PanelLeftOpen ,LogOut, Box, ChartArea,FilePlusCorner , Clock3, Menu, Wallet, Bolt, PanelRightOpen } from "lucide-react";
 
 const navItems = [
   { id: "add", label: "Tambah Transaksi", icon: FilePlusCorner, href: "/pages/tambahTransaksi" },
@@ -26,6 +27,11 @@ export default function DashboardShell({ children, title, subtitle, badges = [] 
   const [mobileOpen, setMobileOpen] = useState(false);
   const showSidebarLabels = expanded || mobileOpen;
   const pathname = usePathname();
+  const router = useRouter()
+  const logout = () => {
+    localStorage.removeItem("token")
+    router.push('/')
+  }
 
   return (
     <div className=" bg-zinc-50 text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50">
@@ -69,7 +75,15 @@ export default function DashboardShell({ children, title, subtitle, badges = [] 
             )})}
           </nav>
 
-          <div className="mt-auto px-4 py-4 sm:px-4 sm:py-5 gap-2 flex flex-col border-t border-slate-300 dark:border-zinc-700">
+          <div className="mt-auto px-4 py-4 sm:px-4 sm:py-5 gap-2 flex flex-row border-t border-slate-300 dark:border-zinc-700">
+            <button
+              type="button"
+              onClick={() => logout()}
+              aria-expanded={expanded}
+              aria-label={expanded ? "Sembunyikan sidebar" : "Perluas sidebar"}
+              className={expanded ? "hidden h-10 w-1/3 cursor-pointer rotate-180 items-center justify-center rounded-md border  dark:bg-rose-500/30 border-slate-300 bg-white text-zinc-700 transition hover:bg-sky-50 hover:text-sky-600 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-rose-500/10 dark:hover:text-sky-300 sm:inline-flex" : "hidden"}
+            ><LogOut className="h-5 w-5" /></button>
+            
             <button
               type="button"
               onClick={() => setExpanded((current) => !current)}
