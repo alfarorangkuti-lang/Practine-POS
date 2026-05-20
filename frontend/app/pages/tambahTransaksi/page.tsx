@@ -1,25 +1,33 @@
 'use client'
 import DashboardShell from "../../component/DashboardShell";
+import TransactioConfirmModal from "@/app/component/TransactionConfirmModal";
 import { Search } from "lucide-react";
 import { getAllProducts, Products } from "@/app/services/products";
+import { getCategories, Category } from "@/app/services/categories";
 import { useEffect, useState } from "react";
-
-type Cart = {
-  id: number
-  qty: number
-  subtotal: number
-  name: string
-}
+import type { Cart } from "@/app/services/types"
 
 export default function DashboardPage() {
+  const [isOpen, setIsOpen] = useState(false)
   const [cart, setCart] = useState<Cart[]>([])
   const [menuItems, setMenuItems] = useState<Products[]>([])
+  const [filteredItems, setFilteredItems] = useState<Products[]>(menuItems)
+  const [categories, setCategories] = useState<Category[]>([])
   const [total, setTotal] = useState(0)
+  const [method, setMethod] = useState("Metode Pembayaran")
+  const [priceInput, setPriceInput] = useState(0)
+
+  const onClose = () => {
+    setIsOpen(false)
+  }
 
   useEffect(() => {
     const fetchProducts = async() => {  
-      const res = await getAllProducts()
-      setMenuItems(res)
+      const resProducts = await getAllProducts()
+      const resCategories = await getCategories()
+      setMenuItems(resProducts)
+      setFilteredItems(resProducts)
+      setCategories(resCategories)
     }
     fetchProducts()
   }, [])
@@ -44,16 +52,67 @@ export default function DashboardPage() {
       setCart([...cart, newItem]);
       setTotal(total+newItem.subtotal)
     }
-    
   }
+
+  const removeItem = (id: number) => {
+    setCart((prev) => {
+      
+      const exist = prev.find((item) => item.id === id)
+      
+      if (!exist) {
+        return prev
+      }
+
+      setTotal(() => total - exist.subtotal / exist.qty)
+
+      if (exist.qty === 1) {
+        return prev.filter((item) => item.id !== id)
+      }
+
+      return prev.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              qty: item.qty - 1,
+              subtotal: item.subtotal / item.qty * (item.qty - 1),
+            }
+          : item
+      )
+    })
+  }
+
+  const addItemCart = (id: number) => {
+    setCart((prev) => {
+      const exist = prev.find((item) => item.id == id)
+
+      if (!exist) {
+        return prev
+      }
+      setTotal(() => total + exist.subtotal / exist.qty)
+
+      return prev.map((item) => 
+        item.id === id ? {...item, qty: item.qty + 1, subtotal: item.subtotal /item.qty * (item.qty + 1)} : item
+      )
+    })
+  }
+  
   return (
     <DashboardShell title="Buat Transaksi">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] p-4">
-        
+      
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] p-4 relative">
+        <TransactioConfirmModal  
+          items={cart} 
+          method={method} 
+          onClose={onClose} 
+          isOpen={isOpen} 
+          jumlahPembayaran={priceInput}
+          kembalian={priceInput - total}
+        />  
         {/* LEFT CONTENT */}
         <section className="rounded-md bg-white p-3 shadow-sm shadow-slate-200/40 transition hover:shadow-slate-300/40 dark:border-zinc-800 dark:bg-zinc-950 dark:shadow-none dark:hover:shadow-zinc-800/30">
         <div className="relative my-3">
           <input
+            onChange={(e) => { const filtered = menuItems.filter((item) => item.name.toLowerCase().includes( e.target.value.toLowerCase() )); setFilteredItems(filtered)}}
             type="search"
             placeholder="Cari barang..."
             className="
@@ -77,8 +136,15 @@ export default function DashboardPage() {
           <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
         </div>
 
+        <div className="flex gap-2 mb-2">
+          <button onClick={() => { const filtered = menuItems.filter((item) => item.category_name !== ''); setFilteredItems(filtered)}} className="rounded-md dark:text-zinc-100 border border-zinc-200 bg-white text-center shadow-sm transition hover:-translate-y-0.5 hover:border-sky-300  hover:shadow-md hover:shadow-sky-200/40 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-sky-500 dark:hover:shadow-sky-500/20 px-2 py-1">Semua</button>
+          {categories.map((category)=> (
+            <button onClick={() => { const filtered = menuItems.filter((item) => item.category_name == category.name); setFilteredItems(filtered)}} key={category.id} className="rounded-md dark:text-zinc-100 border border-zinc-200 bg-white text-center shadow-sm transition hover:-translate-y-0.5 hover:border-sky-300  hover:shadow-md hover:shadow-sky-200/40 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-sky-500 dark:hover:shadow-sky-500/20 px-2 py-1">{category.name}</button>
+          ))}
+        </div>
+
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {menuItems.map((item, index) => (
+            {filteredItems.map((item, index) => (
               <button
                 onClick={() => addItem(item.id, item.price, 1, item.name)}
                 key={index}
@@ -141,17 +207,17 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="mt-6 space-y-4">
+          <div className="mt-6 ">
             
 
             {/* CART */}
-            <div className="rounded-md border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
+            <div className=" rounded border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 max-h-50 overflow-auto">
               {cart.map((item, index) => (
                 <div
                   key={index}
-                  className={`flex items-center justify-between px-4 py-3 ${
+                  className={`flex rounded items-center justify-between px-4 py-3 ${
                     index !== cart.length - 1
-                      ? "border-b border-zinc-200 dark:border-zinc-800"
+                      ? "rounded border-b border-zinc-200 dark:border-zinc-800"
                       : ""
                   }`}
                 >
@@ -165,31 +231,36 @@ export default function DashboardPage() {
                     </p>
                   </div>
 
-                  <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                    Rp. {item.subtotal.toLocaleString("id-ID")}
-                  </p>
+                  <div className="flex gap-2 items-center">
+                    <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                      Rp. {item.subtotal.toLocaleString("id-ID")}
+                    </p>
+                    <button onClick={() => removeItem(item.id)} className="px-2 rounded bg-sky-400"><p className="w-2">-</p></button>
+                    <button onClick={() => addItemCart(item.id)} className="px-2 rounded bg-rose-400/50"><p className="w-2">+</p></button>
+                  </div>
+
                 </div>
               ))}
             </div>
 
             {/* PAYMENT */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <label className="my-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 Metode Pembayaran
               </label>
 
               <select
-                className="w-full rounded-md border border-zinc-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-700"
+              onChange={(e) => {setMethod(e.target.value)}}
+                className="w-full rounded-t-md border-b border-zinc-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-700"
               >
-                <option>Tunai</option>
-                <option>QRIS</option>
-                <option>Transfer Bank</option>
-                <option>E-Wallet</option>
+                <option disabled>{method}</option>
+                <option value="Tunai">Tunai</option>
+                <option value="QRIS">QRIS</option>
               </select>
             </div>
 
             {/* TOTAL */}
-            <div className="rounded-md bg-zinc-50 p-4 dark:bg-zinc-900">
+            <div className=" bg-zinc-50 border-b border-zinc-200 dark:border-zinc-800 p-4 dark:bg-zinc-900">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
                   Total
@@ -201,8 +272,33 @@ export default function DashboardPage() {
               </div>
             </div>
 
+            <div className=" bg-zinc-50 p-4 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Jumlah Bayar
+                </p>
+
+                <input type="number" inputMode="numeric" pattern="[0-9]*" value={priceInput} onChange={(e) => {setPriceInput(e.target.value)}} className=" w-1/2 focus:border-slate-300 focus:text-left border-slate-600 border-b text-right outline-none text-xl font-bold text-zinc-950 dark:text-zinc-50"/>
+
+              </div>
+            </div>
+
+            <div className=" bg-zinc-50 p-4 rounded-b-md mb-6 dark:bg-zinc-900">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Kembalian
+                </p>
+
+                <p className="text-xl font-bold text-zinc-950 dark:text-zinc-50">
+                  Rp. {priceInput - total}
+                </p>
+              </div>
+            </div>
+
             {/* BUTTON */}
             <button
+              onClick={() => { setIsOpen(true) }}
+              disabled={cart.length < 1}
               className="w-full rounded-md bg-sky-600 py-3 text-sm font-medium text-white transition hover:bg-zinc-800 active:scale-[0.99] dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-zinc-300"
             >
               Simpan Transaksi

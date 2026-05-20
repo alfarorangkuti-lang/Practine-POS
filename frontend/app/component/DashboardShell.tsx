@@ -11,7 +11,6 @@ const navItems = [
   { id: "stock", label: "Stock", icon: Box, href: "/pages/stock" },
   { id: "analytics", label: "Analytics", icon: ChartArea, href: "/pages/home" },
   { id: "history", label: "Riwayat Transaksi", icon: Clock3, href: "#" },
-  { id: "financial", label: "Finansial", icon: Wallet, href: "#" },
   { id: "add", label: "Tambah Transaksi", icon: FilePlusCorner, href: "/pages/tambahTransaksi" },
 ];
 
