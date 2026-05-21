@@ -1,4 +1,6 @@
 import type { Cart } from "@/app/services/types"
+import { createTransaction } from "../services/transaction"
+import { CartBackend } from "../services/transaction"
 
 type TransactionProps = {
     isOpen: boolean,
@@ -9,9 +11,26 @@ type TransactionProps = {
     kembalian: number
 }
 
+
 export default function TransactioConfirmModal({
     isOpen = false,onClose, items, method, jumlahPembayaran, kembalian
 }: TransactionProps) {
+
+    const cart: CartBackend[] = items.map((item) => ({
+        id_product: item.id,
+        qty: item.qty
+    }))
+
+    const handleConfirm = async() => {
+        // try {
+            
+        // } catch (error) {
+        //     console.log(error)
+        // }
+
+        const res = await createTransaction(cart, jumlahPembayaran)
+            console.log(res)
+    }
 
     const total = items.reduce((acc, item) => acc + item.subtotal, 0)
 
@@ -114,7 +133,7 @@ export default function TransactioConfirmModal({
                             Batal
                         </button>
 
-                        <button className="flex-1 rounded-md bg-sky-500 py-3 font-semibold text-black transition hover:bg-sky-400">
+                        <button onClick={handleConfirm} className="flex-1 rounded-md bg-sky-500 py-3 font-semibold text-black transition hover:bg-sky-400">
                             Konfirmasi
                         </button>
 

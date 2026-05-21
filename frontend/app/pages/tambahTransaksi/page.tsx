@@ -14,7 +14,7 @@ export default function DashboardPage() {
   const [filteredItems, setFilteredItems] = useState<Products[]>(menuItems)
   const [categories, setCategories] = useState<Category[]>([])
   const [total, setTotal] = useState(0)
-  const [method, setMethod] = useState("Metode Pembayaran")
+  const [method, setMethod] = useState("Tunai")
   const [priceInput, setPriceInput] = useState(0)
 
   const onClose = () => {
